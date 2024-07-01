@@ -6,6 +6,7 @@ import { LivrosService } from '../../api/LivrosService';
 
 const LivrosEdicao = () => {
   let { livroId } = useParams();
+  livroId = parseInt(livroId); // Certifique-se de que livroId seja um número inteiro
 
   const [livro, setLivro] = useState({});
   const [message, setMessage] = useState('');
@@ -23,46 +24,37 @@ const LivrosEdicao = () => {
 
   async function editLivro(e) {
     e.preventDefault(); // Previne o comportamento padrão do formulário
+
     const body = {
-      id: Number(livro.id),
+      id: livroId,
       titulo: livro.titulo,
-      num_paginas: Number(livro.num_paginas),
+      num_paginas: livro.num_paginas,
       isbn: livro.isbn,
-      editora: livro.editora
+      editora: livro.editora,
+      link: livro.link  // Garante que o link seja atualizado corretamente
     };
 
-    if (
-      livro.id !== undefined && livro.id !== '' &&
-      livro.titulo !== undefined && livro.titulo !== '' &&
-      livro.num_paginas !== undefined && livro.num_paginas !== '' &&
-      livro.isbn !== undefined && livro.isbn !== '' &&
-      livro.editora !== undefined && livro.editora !== ''
-    ) {
-      try {
-        const response = await LivrosService.updateLivro(Number(livro.id), body);
-        if (response && response.data) {
-          console.log('Resposta da atualização:', response.data);
-          setMessage(response.data.mensagem || 'Livro atualizado com sucesso');
-          setError(''); // Limpa qualquer mensagem de erro anterior
-        } else {
-          console.error('Resposta de atualização inválida:', response);
-          setError('Erro ao atualizar livro');
-          setMessage(''); // Limpa qualquer mensagem de sucesso anterior
-        }
-      } catch (err) {
-        console.error('Erro ao atualizar livro:', err);
+    try {
+      const response = await LivrosService.updateLivro(livroId, body);
+      if (response && response.data) {
+        console.log('Resposta da atualização:', response.data);
+        setMessage(response.data.mensagem || 'Livro atualizado com sucesso');
+        setError(''); // Limpa qualquer mensagem de erro anterior
+      } else {
+        console.error('Resposta de atualização inválida:', response);
         setError('Erro ao atualizar livro');
         setMessage(''); // Limpa qualquer mensagem de sucesso anterior
       }
-    } else {
-      setError('Todos os campos são obrigatórios');
-      setMessage('');
+    } catch (err) {
+      console.error('Erro ao atualizar livro:', err);
+      setError('Erro ao atualizar livro');
+      setMessage(''); // Limpa qualquer mensagem de sucesso anterior
     }
   }
 
   useEffect(() => {
     getLivro();
-  }, []);
+  }, [livroId]); // Adicione livroId como dependência para atualizar quando ele mudar
 
   return (
     <>
@@ -72,14 +64,8 @@ const LivrosEdicao = () => {
         <div>
           <form id="formulario" onSubmit={editLivro}>
             <div className='form-group'>
-              <label>Id</label>
-              <input
-                type="text"
-                disabled
-                required
-                onChange={(event) => { setLivro({ ...livro, id: event.target.value }); }}
-                value={livro.id || ''}
-              />
+              <label>ID do Livro:</label> {livroId}
+              {/* Exibe o ID do livro sendo alterado */}
             </div>
             <div className='form-group'>
               <label>Título</label>
@@ -115,6 +101,15 @@ const LivrosEdicao = () => {
                 required
                 onChange={(event) => { setLivro({ ...livro, editora: event.target.value }); }}
                 value={livro.editora || ''}
+              />
+            </div>
+            <div className='form-group'>
+              <label>Link</label>
+              <input
+                type="text"
+                required
+                onChange={(event) => { setLivro({ ...livro, link: event.target.value }); }}
+                value={livro.link || ''}
               />
             </div>
             <div className='form-group'>

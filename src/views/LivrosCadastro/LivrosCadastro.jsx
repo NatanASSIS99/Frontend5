@@ -1,9 +1,5 @@
-// components/LivrosCadastro.js
-
 import React, { useState } from 'react';
 import Header from '../../components/Header/Header';
-import "./index.scss";
-import SubmenuLivros from '../../components/SubmenuLivros/SubmenuLivros';
 import { LivrosService } from '../../api/LivrosService';
 
 const LivrosCadastro = () => {
@@ -14,11 +10,17 @@ const LivrosCadastro = () => {
     num_paginas: '',
     isbn: '',
     editora: '',
-    link: '' // Adicione o estado para o link do livro
+    link: ''
   });
+
   const [errorMessage, setErrorMessage] = useState('');
 
-  async function createLivro() {
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setLivro({ ...livro, [name]: value });
+  };
+
+  const createLivro = async () => {
     try {
       const body = {
         id: Number(livro.id),
@@ -26,7 +28,7 @@ const LivrosCadastro = () => {
         num_paginas: Number(livro.num_paginas),
         isbn: livro.isbn,
         editora: livro.editora,
-        link: livro.link // Inclua o link no corpo da requisição
+        link: livro.link
       };
 
       // Validar se todos os campos obrigatórios foram preenchidos
@@ -37,13 +39,20 @@ const LivrosCadastro = () => {
       
       await LivrosService.createLivro(body);
       alert('Livro cadastrado com sucesso!');
-      document.getElementById('formulario').reset();
+      setLivro({
+        id: '',
+        titulo: '',
+        num_paginas: '',
+        isbn: '',
+        editora: '',
+        link: ''
+      }); // Limpa os campos após o cadastro
       setErrorMessage('');
     } catch (error) {
       console.error('Erro ao cadastrar livro:', error);
       setErrorMessage('Erro ao cadastrar livro. Tente novamente mais tarde.');
     }
-  }
+  };
 
   return (
     <>
@@ -52,30 +61,30 @@ const LivrosCadastro = () => {
         <h1>Cadastro de Livros</h1>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         <div>          
-          <form id="formulario">
+          <form>
             <div className='form-group'>
               <label>Id</label>
-              <input type="text" id='id' required onChange={(event) => { setLivro({ ...livro, id: event.target.value })}} />
+              <input type="text" name='id' value={livro.id} onChange={handleInputChange} />
             </div>
             <div className='form-group'>
               <label>Titulo</label>
-              <input type="text" id='titulo' required onChange={(event) => { setLivro({ ...livro, titulo: event.target.value })}} />
+              <input type="text" name='titulo' value={livro.titulo} onChange={handleInputChange} />
             </div>
             <div className='form-group'>
               <label>Número de Páginas</label>
-              <input type="text" id='num' required onChange={(event) => { setLivro({ ...livro, num_paginas: event.target.value })}} />
+              <input type="text" name='num_paginas' value={livro.num_paginas} onChange={handleInputChange} />
             </div>
             <div className='form-group'>
               <label>ISBN</label>
-              <input type="text" id='isbn' required onChange={(event) => { setLivro({ ...livro, isbn: event.target.value })}} />
+              <input type="text" name='isbn' value={livro.isbn} onChange={handleInputChange} />
             </div>
             <div className='form-group'>
               <label>Editora</label>
-              <input type="text" id='editora' required onChange={(event) => { setLivro({ ...livro, editora: event.target.value })}} />
+              <input type="text" name='editora' value={livro.editora} onChange={handleInputChange} />
             </div> 
             <div className='form-group'>
               <label>Link</label>
-              <input type="text" id='link' required onChange={(event) => { setLivro({ ...livro, link: event.target.value })}} />
+              <input type="text" name='link' value={livro.link} onChange={handleInputChange} />
             </div> 
             <div className='form-group'>
               <button type="button" onClick={createLivro}>Cadastrar Livro</button>  
